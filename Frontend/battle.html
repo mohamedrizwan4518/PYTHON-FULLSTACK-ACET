@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D Battlefield</title>
+    <meta charset="UTF-8">
+    <style>
+        body { margin: 0; overflow: hidden; }
+    </style>
+</head>
+<body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer();
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Fog
+scene.fog = new THREE.Fog(0x000000, 10, 50);
+
+// Ground
+const geometry = new THREE.PlaneGeometry(100, 100);
+const material = new THREE.MeshPhongMaterial({ color: 0x333333 });
+const ground = new THREE.Mesh(geometry, material);
+ground.rotation.x = -Math.PI / 2;
+scene.add(ground);
+
+// Light
+const light = new THREE.PointLight(0xffffff, 1);
+light.position.set(10, 20, 10);
+scene.add(light);
+
+// Random Spears (War Atmosphere)
+for (let i = 0; i < 50; i++) {
+    const spearGeo = new THREE.CylinderGeometry(0.1, 0.1, 5);
+    const spearMat = new THREE.MeshStandardMaterial({ color: 0x555555 });
+    const spear = new THREE.Mesh(spearGeo, spearMat);
+    spear.position.set(
+        (Math.random() - 0.5) * 50,
+        2.5,
+        (Math.random() - 0.5) * 50
+    );
+    scene.add(spear);
+}
+
+camera.position.set(0, 5, 15);
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    camera.position.z -= 0.02; // slow forward movement
+
+    renderer.render(scene, camera);
+}
+
+animate();
+</script>
+
+</body>
+</html>

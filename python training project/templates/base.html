@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyQuest AI - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('auth.index') }}" class="nav-logo">PyQuest AI</a>
+
+        {% if current_user.is_authenticated %}
+        <div class="nav-stats">
+            <div class="stat-item">
+                <span class="stat-label">Level</span>
+                <span class="stat-value">{{ current_user.level }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">XP</span>
+                <span class="stat-value">{{ current_user.xp }}</span>
+                {% set next_xp = (100 * (current_user.level ** 1.5)) | int %}
+                <div class="xp-progress-container" style="width: 100px;">
+                    <div class="xp-progress-bar" id="xpBar"
+                        style="width: {{ (current_user.xp / next_xp * 100) | int if next_xp > 0 else 0 }}%;"></div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Streak</span>
+                <span class="stat-value"><i class="fas fa-fire" style="color: var(--neon-orange);"></i> {{
+                    current_user.streak_days }}</span>
+            </div>
+            <div class="stat-item">
+                <a href="{{ url_for('auth.dashboard') }}" class="btn btn-secondary btn-sm">Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" style="color: var(--text-muted); margin-left:1rem;"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </div>
+        {% else %}
+        <div>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Login</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="margin-left: 1rem;">Start Quest</a>
+        </div>
+        {% endif %}
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="card" style="border-left: 4px solid var(--neon-blue);">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    {% if current_user.is_authenticated %}
+    <div class="mentor-panel" id="mentorPanel">
+        <div class="mentor-header" onclick="toggleMentor()">
+            <span><i class="fas fa-robot"></i> AI Mentor</span>
+            <i class="fas fa-chevron-up" id="mentorChevron"></i>
+        </div>
+        <div class="mentor-chat" id="chatWindow">
+            <div class="chat-bubble ai">
+                Hello {{ current_user.username }}! I'm your AI Mentor. How can I help you with Python today?
+            </div>
+        </div>
+        <div class="mentor-input">
+            <input type="text" id="mentorMsg" placeholder="Ask a question..." onkeypress="handleChatKey(event)">
+            <button class="btn btn-primary" onclick="sendChat()">Send</button>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        function toggleMentor() {
+            const panel = document.getElementById('mentorPanel');
+            const chevron = document.getElementById('mentorChevron');
+            panel.classList.toggle('open');
+            if (panel.classList.contains('open')) {
+                chevron.classList.replace('fa-chevron-up', 'fa-chevron-down');
+            } else {
+                chevron.classList.replace('fa-chevron-down', 'fa-chevron-up');
+            }
+        }
+
+        async function sendChat() {
+            const input = document.getElementById('mentorMsg');
+            const msg = input.value;
+            if (!msg) return;
+
+            const chatWindow = document.getElementById('chatWindow');
+
+            // Add user bubble
+            const userBubble = document.createElement('div');
+            userBubble.className = 'chat-bubble user';
+            userBubble.innerText = msg;
+            chatWindow.appendChild(userBubble);
+            input.value = '';
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            try {
+                const response = await fetch("{{ url_for('ai.mentor_chat') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await response.json();
+
+                // Add AI bubble
+                const aiBubble = document.createElement('div');
+                aiBubble.className = 'chat-bubble ai';
+                aiBubble.innerText = data.response;
+                chatWindow.appendChild(aiBubble);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function handleChatKey(e) {
+            if (e.key === 'Enter') sendChat();
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

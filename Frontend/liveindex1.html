@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Animated Login</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#0f2027;
+    overflow:hidden;
+}
+
+/* Animated Background */
+body::before{
+    content:"";
+    position:absolute;
+    width:200%;
+    height:200%;
+    background: radial-gradient(circle at 30% 30%, #00f5ff, transparent 40%),
+                radial-gradient(circle at 70% 70%, #ff00ff, transparent 40%),
+                radial-gradient(circle at 50% 50%, #00ff88, transparent 40%);
+    animation: animateBG 12s infinite linear;
+}
+
+@keyframes animateBG{
+    0%{ transform: rotate(0deg);}
+    100%{ transform: rotate(360deg);}
+}
+
+/* Glass Form */
+.container{
+    position:relative;
+    z-index:1;
+    backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.1);
+    padding:40px;
+    border-radius:20px;
+    width:400px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    color:white;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float{
+    0%,100%{ transform: translateY(0);}
+    50%{ transform: translateY(-15px);}
+}
+
+h2{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+input, select{
+    width:100%;
+    padding:8px;
+    margin:6px 0 12px 0;
+    border:none;
+    border-radius:8px;
+    outline:none;
+    background: rgba(255,255,255,0.2);
+    color:white;
+}
+
+input::placeholder{
+    color:#eee;
+}
+
+input[type="radio"],
+input[type="checkbox"]{
+    width:auto;
+    margin-right:5px;
+}
+
+label{
+    font-size:14px;
+}
+
+button{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    background: linear-gradient(45deg,#00f5ff,#ff00ff);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.4s;
+}
+
+button:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 20px #00f5ff;
+}
+
+.small-group{
+    margin-bottom:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>Register Here</h2>
+
+<form action="index.html">
+
+<label>Enter your name:</label>
+<input type="text" name="name" required>
+
+<label>Enter your email:</label>
+<input type="email" name="email" required>
+
+<label>Enter your password:</label>
+<input type="password" name="password" required>
+
+<label>Enter your age:</label>
+<input type="number" name="age">
+
+<label>Enter your date of birth:</label>
+<input type="date" name="dob">
+
+<label>Enter your Gender:</label>
+<div class="small-group">
+<input type="radio" name="gender" value="male"> Male
+<input type="radio" name="gender" value="female"> Female
+</div>
+
+<label>Enter your Mobile Number:</label>
+<input type="tel" name="mobile">
+
+<label>Enter your Github Profile:</label>
+<input type="url" name="github">
+
+<label>Upload your Resume:</label>
+<input type="file" name="resume">
+
+<label>Qualification:</label>
+<div class="small-group">
+<input type="checkbox" name="qualification" value="highschool"> High School <br>
+<input type="checkbox" name="qualification" value="bachelor"> Bachelor's Degree <br>
+<input type="checkbox" name="qualification" value="master"> Master's Degree
+</div>
+
+<label>Enter your country:</label>
+<select name="country">
+<option value="usa">USA</option>
+<option value="uk">UK</option>
+<option value="india">India</option>
+<option value="australia">Australia</option>
+</select>
+
+<button type="submit">Submit</button>
+
+</form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ lesson.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1>{{ lesson.title }}</h1>
+            <p class="difficulty-{{ lesson.difficulty.lower() }}">{{ lesson.difficulty }} Module | {{ lesson.xp_reward
+                }} XP Reward</p>
+        </div>
+        <a href="{{ url_for('lesson.list_lessons') }}" class="btn btn-secondary">Back to Path</a>
+    </div>
+
+    <div style="font-size: 1.1rem; border-left: 2px solid var(--border); padding-left: 2rem;">
+        {{ lesson.content | safe }}
+    </div>
+</div>
+
+<div class="card" style="border-top: 4px solid var(--neon-blue);">
+    <h2>Ready for the Challenge?</h2>
+    <p>Complete the associated challenge to earn your XP and test your knowledge.</p>
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        {% for challenge in lesson.challenges %}
+        <a href="{{ url_for('challenge.challenge_detail', id=challenge.id) }}" class="btn btn-primary">
+            Start Challenge: {{ challenge.title }}
+        </a>
+        {% else %}
+        <p style="color: var(--text-muted);">No challenges for this lesson yet. Check back soon!</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

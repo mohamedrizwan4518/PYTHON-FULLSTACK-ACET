@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 3fr; gap: 2rem;">
+    <aside>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 4rem; color: var(--neon-blue); margin-bottom: 1rem;">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <h2>{{ user.username }}</h2>
+            <p class="difficulty-beginner">Lvl {{ user.level }} Developer</p>
+            <hr style="border: 0.5px solid var(--border); margin: 1.5rem 0;">
+            <div style="text-align: left;">
+                <p><i class="fas fa-bolt" style="color: var(--neon-blue);"></i> XP: {{ user.xp }}</p>
+                <p><i class="fas fa-fire" style="color: var(--neon-orange);"></i> Streak: {{ user.streak_days }} days
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Badges</h3>
+            <div class="badge-grid" style="grid-template-columns: 1fr 1fr;">
+                {% for ub in user_badges %}
+                <div class="badge-item" title="{{ ub.badge.description }}">
+                    <div class="badge-icon"><i class="{{ ub.badge.icon }}"></i></div>
+                    <div style="font-size: 0.7rem;">{{ ub.badge.name }}</div>
+                </div>
+                {% else %}
+                <p style="grid-column: span 2; font-size: 0.8rem; color: var(--text-muted);">No badges yet. Keep coding!
+                </p>
+                {% endfor %}
+            </div>
+        </div>
+    </aside>
+
+    <main>
+        <div class="card" style="border-left: 4px solid var(--neon-green);">
+            <h2>Recommended for You</h2>
+            {% if recommended_lesson %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3>{{ recommended_lesson.title }}</h3>
+                    <p class="difficulty-{{ recommended_lesson.difficulty.lower() }}">{{ recommended_lesson.difficulty
+                        }} | {{ recommended_lesson.xp_reward }} XP</p>
+                </div>
+                <a href="{{ url_for('lesson.lesson_detail', id=recommended_lesson.id) }}" class="btn btn-primary">Start
+                    Now</a>
+            </div>
+            {% else %}
+            <p>You've completed everything! Check back soon.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3>Recent Activity</h3>
+                <a href="{{ url_for('lesson.list_lessons') }}" class="btn btn-secondary btn-sm">All Lessons</a>
+            </div>
+            {% for act in recent_activity %}
+            <div
+                style="display: flex; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid var(--border);">
+                <div>
+                    <strong>{{ act.item_type|capitalize }}: {{ act.item_id }}</strong>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">{{ act.completed_at.strftime('%Y-%m-%d
+                        %H:%M') }}</div>
+                </div>
+                {% if act.score %}
+                <div class="stat-value">{{ act.score }}/10</div>
+                {% endif %}
+            </div>
+            {% else %}
+            <p style="color: var(--text-muted);">No activity recorded yet. Start your first lesson!</p>
+            {% endfor %}
+            <div class="stat-item">
+                <span class="stat-label">XP</span>
+                <span class="stat-value">{{ current_user.xp }}</span>
+                {% set next_level_xp = (100 * (current_user.level ** 1.5)) | int %}
+                <div class="xp-progress-container" style="width: 100px;">
+                    <div class="xp-progress-bar" id="xpBar"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Challenge: {{ challenge.title }}{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+    <div>
+        <div class="card">
+            <h1><i class="fas fa-terminal"></i> {{ challenge.title }}</h1>
+            <p class="difficulty-{{ challenge.difficulty.lower() }}">{{ challenge.difficulty }} | {{ challenge.xp_reward
+                }} XP Reward</p>
+            <hr style="border: 0.5px solid var(--border); margin: 1.5rem 0;">
+            <div style="font-size: 1.1rem;">
+                {{ challenge.description | safe }}
+            </div>
+        </div>
+
+        <div class="card" id="resultCard" style="display: none;">
+            <h3>Evaluation Result</h3>
+            <div id="scoreDisplay" style="font-size: 2rem; font-weight: bold; margin-bottom: 1rem;"></div>
+            <div id="feedbackDisplay"
+                style="font-size: 0.9rem; background: #1c2128; padding: 1rem; border-radius: 8px; white-space: pre-wrap;">
+            </div>
+            <div id="rewardDisplay" style="margin-top: 1rem; color: var(--neon-green); font-weight: bold;"></div>
+        </div>
+    </div>
+
+    <div>
+        <div class="card">
+            <h3>Python Editor</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Write your solution below and
+                submit for AI evaluation.</p>
+            <textarea id="editor">{{ challenge.starter_code }}</textarea>
+            <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="resetEditor()">Reset</button>
+                <button class="btn btn-primary" onclick="submitChallenge()">Submit Achievement</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const starterCode = `{{ challenge.starter_code | safe }}`;
+
+    function resetEditor() {
+        document.getElementById('editor').value = starterCode;
+    }
+
+    async function submitChallenge() {
+        const code = document.getElementById('editor').value;
+        const btn = event.target;
+        btn.disabled = true;
+        btn.innerText = "Evaluating...";
+
+        const formData = new FormData();
+        formData.append('code', code);
+
+        try {
+            const response = await fetch("{{ url_for('challenge.challenge_submit', id=challenge.id) }}", {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            const resultCard = document.getElementById('resultCard');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const feedbackDisplay = document.getElementById('feedbackDisplay');
+            const rewardDisplay = document.getElementById('rewardDisplay');
+
+            resultCard.style.display = 'block';
+            scoreDisplay.innerText = "Score: " + data.score + "/10";
+            scoreDisplay.style.color = data.score >= 5 ? 'var(--neon-green)' : 'var(--neon-red)';
+            feedbackDisplay.innerText = data.feedback;
+
+            let rewardText = `XP Earned: +${data.xp_earned}`;
+            if (data.leveled_up) {
+                rewardText += ` | LEVEL UP! Now Level ${data.new_level}`;
+            }
+            if (data.new_badges.length > 0) {
+                rewardText += ` | UNLOCKED BADGES: ${data.new_badges.join(', ')}`;
+            }
+            rewardDisplay.innerText = rewardText;
+
+            resultCard.scrollIntoView({ behavior: 'smooth' });
+        } catch (e) {
+            console.error(e);
+            alert("Submission failed. Check console for details.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Submit Achievement";
+        }
+    }
+</script>
+{% endblock %}

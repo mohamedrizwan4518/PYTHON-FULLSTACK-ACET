@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Lessons{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 2rem;">Python Learning Path</h1>
+
+<div style="display: flex; flex-direction: column; gap: 1rem;">
+    {% for lesson in lessons %}
+    <div class="card"
+        style="display: flex; justify-content: space-between; align-items: center; {% if lesson.id in completed_ids %}opacity: 0.7; border-left: 4px solid var(--neon-green);{% endif %}">
+        <div>
+            <h3 style="margin: 0;">{{ lesson.order }}. {{ lesson.title }}</h3>
+            <span class="difficulty-{{ lesson.difficulty.lower() }}" style="font-size: 0.9rem;">{{ lesson.difficulty
+                }}</span>
+            <span style="color: var(--text-muted); font-size: 0.9rem; margin-left: 1rem;">{{ lesson.xp_reward }}
+                XP</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            {% if lesson.id in completed_ids %}
+            <span style="color: var(--neon-green);"><i class="fas fa-check-circle"></i> Completed</span>
+            {% endif %}
+            <a href="{{ url_for('lesson.lesson_detail', id=lesson.id) }}" class="btn btn-secondary">
+                {% if lesson.id in completed_ids %}Review{% else %}Explore{% endif %}
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <p>No lessons available yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}
